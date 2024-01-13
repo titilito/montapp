@@ -1,0 +1,43 @@
+<html>
+    <head>
+        <meta charset="UTF-8">
+        <title>Consultation et dépot de factures</title>
+        <!-- Inclusion de Bootstrap CSS -->
+        <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+        <style>
+        .hidden-field {
+            display: none;
+        }
+        </style>
+    </head>
+    <body>
+        {% include "montapp/header.html" %}
+        {% load crispy_forms_tags %}
+        {% block content %}
+        <div class="container">
+            <h2>Déposer une Facture</h2>
+            <form method="post" enctype="multipart/form-data">
+                {% csrf_token %}
+                <!-- Ajoutez la sélection/désélection des utilisateurs ici -->
+                <!-- Champ fichier -->
+                {{ form.fichier|as_crispy_field }}
+                
+                <!-- Champ montant -->
+                {{ form.montant|as_crispy_field }}
+                <h3>Sélectionnez les utilisateurs :</h3>
+                <div class="form-check">
+                    {% for user in form.utilisateurs.field.queryset %}
+                        <input type="checkbox" name="utilisateurs" value="{{ user.id }}" class="form-check-input" id="utilisateur_{{ user.id }}">
+                        <label class="form-check-label" for="utilisateur_{{ user.id }}">{{ user.username }}</label><br>
+                    {% endfor %}
+                </div>
+                <br>
+                <button type="submit" class="btn btn-primary">Déposer</button>
+            </form>
+        </div>
+        {% endblock %}
+        <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
+        <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+    </body>
+</html>

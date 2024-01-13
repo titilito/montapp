@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="csrf-token" content="{{ csrf_token }}">
+    <title>Planning</title>
+    <!-- Inclusion de FullCalendar et ses dépendances -->
+    <link href='https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/3.10.2/fullcalendar.min.css' rel='stylesheet' />
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <style>
+        body {
+            padding: 0;
+            margin: 0;
+            font-family: Arial, sans-serif;
+        }
+        #calendar-container {
+            max-width: 1000px; /* Largeur maximale du calendrier */
+            margin: 0 auto;
+            padding-top: 50px;
+        }
+        @media (max-width: 767px) {
+            #calendar-container {
+                width: 90%; /* Largeur du calendrier sur les petits écrans */
+            }
+        }
+    </style>
+</head>
+<body>
+    {% include "montapp/header.html" %}
+    <div class="container mt-3">
+        <div class="row justify-content-between">
+            <div class="col-auto">
+                <button id="btnOuvrirModale" class="btn btn-primary mr-2" type="button">Voir les Statistiques</button>
+            </div>
+        </div>
+    </div>
+    <div id="calendar-container">
+        <div id="calendar"></div>
+    </div>
+    <div class="modal fade" id="statModal" tabindex="-1" role="dialog" aria-labelledby="statModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title" id="statModalLabel">Nombre de Jours par Utilisateur</h5>
+              <select id="selectAnnee">
+                    <option value="">Toutes les années</option>
+                    {% for annee in annees_disponibles %}
+                        <option value="{{ annee }}">{{ annee }}</option>
+                    {% endfor %}
+                </select>
+              <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+              </button>
+            </div>
+            <div class="modal-body">
+              <!-- Ici, le contenu sera injecté dynamiquement -->
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-secondary" data-dismiss="modal">Fermer</button>
+            </div>
+          </div>
+        </div>
+      </div>
+      <script src='https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js'></script>
+    
+<!-- Scripts JavaScript pour Bootstrap et jQuery -->
+
+<script src='https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment.min.js'></script>
+<script src='https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/3.10.2/fullcalendar.min.js'></script>
+<script src='https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/3.10.2/locale/fr.js'></script>
+<script src='https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js'></script>
+<script src='https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js'></script>
+<script>
+    $(document).ready(function() {
+        $('#calendar').fullCalendar({
+            locale: 'fr',
+            header: {
+                left: 'prev,next today',
+                center: 'title',
+                right: 'month'
+            },
+            defaultDate: moment().format('YYYY-MM-DD'),
+            events: '{% url "get_evenements" %}',
+            selectable: true,
+            selectHelper: true,
+            select: function(start, end) {
+                var titre = prompt('Titre de l\'événement:');
+                if (titre) {
+                    var csrftoken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+                    var eventData = {
+                        title: titre,
+                        start: start.format(),
+                        end: end.format(),
+                        // Autres données nécessaires
+                    };
+                    console.log("Envoi des données d'événement : ", eventData);
+                    // Envoi d'une requête AJAX pour créer l'événement
+                    $.ajax({
+                        contentType: 'application/json',
+                        headers: { 'X-CSRFToken': csrftoken },
+                        url: '{% url "create_evenement" %}',
+                        data: JSON.stringify(eventData),
+                        method: 'POST',
+                        success: function(response) {
+                            console.log("Réponse réussie du serveur : ", response);
+                            $('#calendar').fullCalendar('refetchEvents');
+                        },
+                        error: function(xhr, status, error) {
+                            console.error("Erreur AJAX : ", xhr.responseText);
+                        }
+                    });
+                }
+            },
+            editable: true,
+            eventLimit: true // allow more than one event per day
+        });
+    });
+</script>
+
+<script>
+    // JavaScript pour gérer l'ouverture de la modale et charger les données
+    document.getElementById('btnOuvrirModale').addEventListener('click', function() {
+        $('#statModal').modal('show');
+        chargerDonneesStat();
+    });
+    function construireTableauStat(data) {
+        var tableau = '<table class="table"><thead><tr><th>Utilisateur</th><th>Année</th><th>Nombre de Jours</th></tr></thead><tbody>';
+        for (var user in data) {
+            for (var year in data[user]) {
+                tableau += '<tr><td>' + user + '</td><td>' + year + '</td><td>' + data[user][year] + '</td></tr>';
+            }
+        }
+        tableau += '</tbody></table>';
+        return tableau;
+    }
+    function chargerDonneesStat(annee) {
+    $.ajax({
+        url: '{% url "statistiques_utilisateur" %}',
+        method: 'GET',
+        dataType: 'json',
+        success: function(data) {
+            var selectAnnee = $('#selectAnnee');
+            selectAnnee.empty();  // Nettoyer la liste déroulante
+
+            // Ajouter une option "Toutes les années" par défaut
+            selectAnnee.append($('<option>', {
+                value: 'toutes', // ou une autre valeur par défaut si nécessaire
+                text: 'Toutes les années'
+            }));
+            var anneesAjoutees = {};
+            // Ajouter les années disponibles à la liste déroulante
+            for (var user in data) {
+                for (var year in data[user]) {
+                    if (!anneesAjoutees.hasOwnProperty(year)) {
+                        // Ajouter l'année à la liste déroulante
+                        selectAnnee.append($('<option>', {
+                            value: year,
+                            text: year
+                        }));
+                        anneesAjoutees[year] = true;  // Marquer l'année comme ajoutée
+                    }
+                }
+            }
+            console.log("Réponse réussie du serveur : ", data);
+            var contenuTableau = construireTableauStat(data);
+            $('#statModal .modal-body').html(contenuTableau);
+        },
+        error: function(error) {
+            console.error("Erreur AJAX : ", error);
+        }
+    });
+}
+
+$('#selectAnnee').on('change', function() {
+    var anneeSelectionnee = $(this).val();
+    console.log(anneeSelectionnee);
+    chargerDonneesStat(anneeSelectionnee);
+});
+
+</script>
+</body>
+</html>

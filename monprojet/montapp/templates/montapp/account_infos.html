@@ -1,0 +1,67 @@
+<html>
+<header>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mon compte</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+</header>
+<body>
+    {% include "montapp/header.html" %}
+    {% block content %}
+    <div class="container">
+        <h2>Informations du compte</h2>
+        <p><strong>Nom d'utilisateur:</strong> {{ user.username }}</p>
+        <p><strong>Adresse e-mail:</strong> {{ user.email }}</p>
+
+        <!-- Modifier le mot de passe -->
+        <h3>Modifier le mot de passe</h3>
+        <form method="post" action="{% url 'reset_password' %}">
+            {% csrf_token %}
+            {{ password_form.as_p }}
+            <button type="submit">Modifier le mot de passe</button>
+        </form>
+
+        <!-- Groupes et permissions -->
+        <h3>Groupes et permissions</h3>
+        <ul>
+            {% for group_name, group_permissions in permissions.items %}
+                <li><strong>{{ group_name }}</strong> <button type="button" class="btn btn-link" data-toggle="modal" data-target="#permissionsModal_{{ group_name }}">Afficher les permissions</button></li>
+            {% endfor %}
+        </ul>
+    </div>
+
+    <!-- Modal pour les permissions -->
+    {% for group_name, group_permissions in permissions.items %}
+    <div class="modal fade" id="permissionsModal_{{ group_name }}" tabindex="-1" role="dialog" aria-labelledby="permissionsModalLabel_{{ group_name }}" aria-hidden="true">
+        <div class="modal-dialog modal-lg" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="permissionsModalLabel_{{ group_name }}">Permissions pour le groupe "{{ group_name }}"</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <ul>
+                        {% for permission in group_permissions %}
+                            <li>{{ permission }}</li>
+                        {% endfor %}
+                    </ul>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Fermer</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+    {% endblock %}
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+</body>
+<footer>
+
+</footer>
+</html>

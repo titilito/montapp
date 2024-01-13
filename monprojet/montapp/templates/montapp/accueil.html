@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Accueil</title>
+    <!-- Assurez-vous d'inclure le CSS de Bootstrap -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+    <style>
+        .btn-large {
+            width: 200px; /* Largeur des boutons */
+            height: 100px; /* Hauteur des boutons */
+            padding: 10px;
+            font-size: 20px; /* Taille de la police */
+            color: black; /* Couleur du texte */
+            background-color: transparent; /* Fond transparent */
+            border: 2px solid black; /* Bordure des boutons */
+        }
+        .btn-large i {
+            margin-bottom: 5px;
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    {% include "montapp/header.html" %}
+    <div class="container">
+        <h1>Bienvenue sur la Page d'Accueil</h1>
+        <!-- Contenu de la page -->
+        <div class="container text-center mt-5">
+            <div class="row">
+                <div class="col-md-3 mb-3">
+                    <a href="{% url 'planning_url' %}" class="btn btn-large">
+                        <i class="fas fa-calendar-alt"></i> Planning
+                    </a>
+                </div>
+                <div class="col-md-3 mb-3">
+                    <a href="{% url 'documents_url' %}" class="btn btn-large">
+                        <i class="fas fa-file-alt"></i> Documents
+                    </a>
+                </div>
+                <div class="col-md-3 mb-3">
+                    <a href="{% url 'liste_factures' %}" class="btn btn-large">
+                        <i class="fas fa-file-invoice-dollar"></i> Factures
+                    </a>
+                </div>
+                <div class="col-md-3 mb-3">
+                    <a href="{% url 'infos_url' %}" class="btn btn-large">
+                        <i class="fas fa-lightbulb"></i> Informations utiles
+                    </a>
+                </div>
+                <div class="col-md-3 mb-3">
+                    <a href="https://www.les2alpes.com/hiver/live/webcams/" class="btn btn-large" target="_blank">
+                        <i class="fas fa-camera"></i> Webcams
+                    </a>
+                </div>
+                <div class="col-md-3 mb-3">
+                    <a href=" https://www.skipass-2alpes.com/fr/?utm_medium=web&utm_source=site-destination&utm_campaign=home-bandeau-skipass-fr-h" class="btn btn-large" target="_blank">
+                        <i class="fas fa-skiing"></i> Acheter un forfait
+                    </a>
+                </div>
+            </div>
+        </div>
+
+    <!-- Inclure les scripts JavaScript de Bootstrap -->
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.0.5/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+</body>
+</html>

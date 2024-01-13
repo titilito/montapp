@@ -1,0 +1,86 @@
+<html>
+    <head>
+        <meta charset="UTF-8">
+        <title>Consultation et dépot de factures</title>
+        <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    </head>
+    <body>
+        {% include "montapp/header.html" %}
+        {% load crispy_forms_tags %}
+        <div class="container mt-3">
+            <div class="row justify-content-between">
+                <div class="col-auto">
+                    <a href="{% url 'lister_factures' %}" class="btn btn-info">Consulter les Factures</a>
+                </div>
+                <div class="col-auto">
+                    <a href="{% url 'upload_facture' %}" class="btn btn-warning">Déposer une Nouvelle Facture</a>
+                </div>
+            </div>
+        </div>
+        <div class="container mt-5">
+            <div class="row">
+                <!-- Colonne pour les factures -->
+                <div class="col-md-6">
+                    <h2>Dernières factures déposées</h2>
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Nom du fichier</th>
+                                <th>Déposé par</th>
+                                <th>Montant</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for facture in dernières_factures %}
+                            <tr>
+                                <td>
+                                    <a href="{{ facture.fichier.url }}" target="_blank">
+                                        {% if facture.fichier.name|length > 20 %}
+                                            {{ facture.fichier.name|slice:":20" }}...
+                                        {% else %}
+                                            {{ facture.fichier.name }}
+                                        {% endif %}
+                                    </a>
+                                </td>
+                                <td>{{ facture.utilisateur.username }}</td>
+                                <td>{{ facture.montant }} €</td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="3">Aucune facture disponible</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                <!-- Colonne pour la répartition par utilisateur -->
+                <div class="col-md-6">
+                    <h2>Répartition par utilisateur</h2>
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Utilisateur</th>
+                                <th>Somme Imputée</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for utilisateur, somme in répartition_par_utilisateur.items %}
+                            <tr>
+                                <td>{{ utilisateur }}</td>
+                                <td>{{ somme }} €</td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="2">Aucune répartition disponible</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
+        <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+    </body>
+</html>

@@ -1,0 +1,43 @@
+<html>
+    <header>
+        <meta charset="UTF-8">
+        <title>Consultation des factures</title>
+        <!-- Inclusion de Bootstrap CSS -->
+        <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    </header>
+    <body>
+        {% include "montapp/header.html" %}
+        {% block content %}
+        {% load l10n %} 
+        <div class="container mt-3">
+            <h2>Liste des Factures</h2>
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Nom du Fichier</th>
+                        <th>Date de Dépôt</th>
+                        <th>Montant</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for facture in factures %}
+                    <tr>
+                        <td><a href="{{ facture.fichier.url }}" target="_blank">{{ facture.fichier.name }}</a></td>
+                        <td>{{ facture.date_depot|date:"d F Y" }}</td>
+                        <td>{{ facture.montant }}</td>
+                    </tr>
+                    {% empty %}
+                            <tr>
+                                <td colspan="3">Aucune facture disponible</td>
+                            </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% endblock %}
+
+    </body>
+    <footer>
+        
+    </footer>
+</html>
